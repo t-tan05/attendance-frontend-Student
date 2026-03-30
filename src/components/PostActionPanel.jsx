@@ -5,11 +5,11 @@ function extractDisplayFields(payload) {
     const body = payload?.data ?? payload
 
     const picks = [
-        ['Trang thai', body?.status ?? body?.success],
-        ['Thong bao', body?.message],
+        ['Trạng thái', body?.status ?? body?.success],
+        ['Thông báo', body?.message],
         ['File key', body?.file_key ?? body?.key],
         ['Upload URL', body?.upload_url ?? body?.url],
-        ['Het han', body?.expires_at ?? body?.expired_at],
+        ['Hết hạn', body?.expires_at ?? body?.expired_at],
     ]
 
     return picks.filter(([, value]) => value !== null && value !== undefined && value !== '')
@@ -39,7 +39,7 @@ export default function PostActionPanel({ title, endpoint, description, payloadH
             const response = await api.post(endpoint, parsed)
             setResponseData(extractDisplayFields(response.data))
         } catch (err) {
-            setError(err?.response?.data?.message || err.message || 'Thuc hien POST that bai')
+            setError(err?.response?.data?.message || err.message || 'Thực hiện POST thất bại')
         } finally {
             setLoading(false)
         }
@@ -63,7 +63,7 @@ export default function PostActionPanel({ title, endpoint, description, payloadH
                     spellCheck="false"
                 />
                 <button type="submit" disabled={loading}>
-                    {loading ? 'Dang gui...' : 'Gui request'}
+                    {loading ? 'Đang gửi...' : 'Gửi yêu cầu'}
                 </button>
             </form>
 

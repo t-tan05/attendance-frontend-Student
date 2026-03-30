@@ -25,7 +25,7 @@ export default function StudentLookupPanel() {
         setSummary([])
 
         if (!studentCode.trim()) {
-            setError('Nhap student_code truoc khi tim')
+            setError('Nhập student_code trước khi tìm')
             return
         }
 
@@ -36,7 +36,7 @@ export default function StudentLookupPanel() {
             })
             setSummary(pickSummary(response.data?.data ?? response.data))
         } catch (err) {
-            setError(err?.response?.data?.message || err.message || 'Khong tim thay thong tin')
+            setError(err?.response?.data?.message || err.message || 'Không tìm thấy thông tin')
         } finally {
             setLoading(false)
         }
@@ -46,8 +46,8 @@ export default function StudentLookupPanel() {
         <section className="resource-panel">
             <div className="resource-head">
                 <div>
-                    <h2>Tra cuu sinh vien theo ma</h2>
-                    <p>Kiem tra lich thi hom nay cua mot sinh vien cu the.</p>
+                    <h2>Tra cứu sinh viên theo mã</h2>
+                    <p> Kiểm tra lịch thi hôm nay của một sinh viên cụ thể.</p>
                 </div>
             </div>
             <p className="resource-endpoint">GET /lecturer/students/today-exam?student_code=...</p>
@@ -59,7 +59,7 @@ export default function StudentLookupPanel() {
                     placeholder="VD: SV001"
                 />
                 <button type="submit" disabled={loading}>
-                    {loading ? 'Dang tim...' : 'Tra cuu'}
+                    {loading ? 'Đang tìm...' : 'Tra cứu'}
                 </button>
             </form>
 

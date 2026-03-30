@@ -22,12 +22,12 @@ export default function ResourcePanel({ title, endpoint, description }) {
                     <h2>{title}</h2>
                     <p>{description}</p>
                 </div>
-                <button type="button" onClick={reload}>Tai lai</button>
+                <button type="button" onClick={reload}>Tải lại</button>
             </div>
 
             <p className="resource-endpoint">GET {endpoint}</p>
 
-            {loading && <p className="info-note">Dang tai du lieu...</p>}
+            {loading && <p className="info-note">Đang tải dữ liệu...</p>}
             {error && <p className="error-note">{error}</p>}
 
             {!loading && !error && (
@@ -45,7 +45,7 @@ export default function ResourcePanel({ title, endpoint, description }) {
                                 </article>
                             ))
                         ) : (
-                            <p className="info-note">Khong co ban ghi nao.</p>
+                            <p className="info-note">Không có bản ghi nào.</p>
                         )
                     ) : (
                         <article className="json-card">

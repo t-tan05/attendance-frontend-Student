@@ -104,11 +104,11 @@ export default function EndpointTable({
                     <h2>{title}</h2>
                     <p>{description}</p>
                 </div>
-                <button type="button" onClick={reload}>Tai lai</button>
+                <button type="button" onClick={reload}>Tải lại</button>
             </div>
             <p className="resource-endpoint">GET {endpoint}</p>
 
-            {loading ? <p className="info-note">Dang tai du lieu...</p> : null}
+            {loading ? <p className="info-note">Đang tải dữ liệu...</p> : null}
             {error ? <p className="error-note">{error}</p> : null}
 
             {!loading && !error && rows.length === 0 ? <p className="info-note">{emptyText}</p> : null}
