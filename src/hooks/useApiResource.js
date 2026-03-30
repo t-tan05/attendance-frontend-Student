@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import api from '../api/client'
 
 export default function useApiResource(endpoint, query = {}) {
@@ -6,18 +6,22 @@ export default function useApiResource(endpoint, query = {}) {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
+    // Stabilize query object reference using useMemo
+    const queryString = useMemo(() => {
+        const params = new URLSearchParams()
+        Object.entries(query || {}).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+                params.append(key, value)
+            }
+        })
+        return params.toString()
+    }, [JSON.stringify(query)])
+
     const load = useCallback(async () => {
         setLoading(true)
         setError('')
         try {
-            const params = new URLSearchParams()
-            Object.entries(query || {}).forEach(([key, value]) => {
-                if (value !== null && value !== undefined && value !== '') {
-                    params.append(key, value)
-                }
-            })
-            
-            const url = params.toString() ? `${endpoint}?${params}` : endpoint
+            const url = queryString ? `${endpoint}?${queryString}` : endpoint
             const response = await api.get(url)
             
             // Handle different response structures
@@ -37,7 +41,7 @@ export default function useApiResource(endpoint, query = {}) {
         } finally {
             setLoading(false)
         }
-    }, [endpoint, query])
+    }, [endpoint, queryString])
 
     useEffect(() => {
         load()

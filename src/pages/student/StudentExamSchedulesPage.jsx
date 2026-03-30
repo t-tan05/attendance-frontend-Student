@@ -1,8 +1,13 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import EndpointTable from '../../components/EndpointTable'
 
 export default function StudentExamSchedulesPage() {
     const [searchQuery, setSearchQuery] = useState('')
+    
+    // Memoize query object to prevent unnecessary re-renders
+    const query = useMemo(() => {
+        return searchQuery ? { q: searchQuery } : {}
+    }, [searchQuery])
 
     return (
         <div className="stacked-grid">
@@ -27,7 +32,7 @@ export default function StudentExamSchedulesPage() {
 
             <EndpointTable
                 endpoint="/student/exam-schedules"
-                query={searchQuery ? { q: searchQuery } : {}}
+                query={query}
                 columns={[
                     { header: 'Mon hoc', keys: ['subject_name', 'subject.subject_name'] },
                     { header: 'Ma mon', keys: ['subject_code'] },
