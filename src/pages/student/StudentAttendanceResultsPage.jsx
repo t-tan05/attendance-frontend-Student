@@ -16,14 +16,15 @@ export default function StudentAttendanceResultsPage() {
             <EndpointTable
                 endpoint="/student/attendance-results"
                 columns={[
-                    { header: 'Mon hoc', keys: ['subject_name', 'course_name', 'exam_name', 'title'] },
-                    { header: 'Lop', keys: ['class_name', 'class_code'] },
-                    { header: 'Ngay thi', keys: ['exam_date', 'date', 'start_at'], type: 'date' },
-                    { header: 'Gio bat dau', keys: ['start_time', 'start_at'], type: 'datetime' },
-                    { header: 'Trang thai', keys: ['attendance_status', 'status'], type: 'status' },
+                    { header: 'Mon hoc', keys: ['exam_schedule.subject_name', 'subject_name'] },
+                    { header: 'Lop', keys: ['student.class_code', 'class_code'] },
+                    { header: 'Ngay thi', keys: ['exam_schedule.exam_date', 'exam_date'], type: 'date' },
+                    { header: 'Gio bat dau', keys: ['exam_schedule.exam_time', 'exam_schedule.start_time', 'start_time'], type: 'datetime' },
+                    { header: 'Phong', keys: ['exam_schedule.room', 'room'] },
+                    { header: 'Diem danh luc', keys: ['attendance_time', 'attended_at', 'checked_at'], type: 'datetime' },
                     { header: 'Phuong thuc', keys: ['attendance_method', 'method'], type: 'status' },
-                    { header: 'Thoi diem ghi nhan', keys: ['attended_at', 'checked_at', 'updated_at'], type: 'datetime' },
-                    { header: 'Ghi chu', keys: ['note', 'remark'] },
+                    { header: 'Ket qua', keys: ['rekognition_result', 'result'], type: 'status' },
+                    { header: 'Do tin cay', keys: ['confidence'] },
                 ]}
                 emptyText="Chua co ban ghi diem danh nao."
             />

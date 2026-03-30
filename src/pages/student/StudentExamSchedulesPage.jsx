@@ -29,13 +29,13 @@ export default function StudentExamSchedulesPage() {
                 endpoint="/student/exam-schedules"
                 query={searchQuery ? { q: searchQuery } : {}}
                 columns={[
-                    { header: 'Mon hoc', keys: ['subject_name', 'course_name', 'exam_name', 'title'] },
-                    { header: 'Lop', keys: ['class_name', 'class_code'] },
-                    { header: 'Ngay thi', keys: ['exam_date', 'date', 'start_at'], type: 'date' },
-                    { header: 'Bat dau', keys: ['start_time', 'start_at'], type: 'datetime' },
-                    { header: 'Ket thuc', keys: ['end_time', 'end_at'], type: 'datetime' },
-                    { header: 'Phong', keys: ['room', 'room_name', 'location'] },
-                    { header: 'Trang thai', keys: ['status'], type: 'status' },
+                    { header: 'Mon hoc', keys: ['subject_name', 'subject.subject_name'] },
+                    { header: 'Ma mon', keys: ['subject_code'] },
+                    { header: 'Ngay thi', keys: ['exam_date', 'date'], type: 'date' },
+                    { header: 'Gio bat dau', keys: ['exam_time', 'start_time'], type: 'datetime' },
+                    { header: 'Thoi luong (phut)', keys: ['duration'] },
+                    { header: 'Phong', keys: ['room', 'room_name'] },
+                    { header: 'Ghi chu', keys: ['note'] },
                 ]}
                 emptyText="Ban chua co lich thi nao."
             />
