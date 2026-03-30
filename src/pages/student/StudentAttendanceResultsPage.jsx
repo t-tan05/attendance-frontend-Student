@@ -23,7 +23,7 @@ export default function StudentAttendanceResultsPage() {
                     { header: 'Phòng', keys: ['exam_schedule.room', 'room'] },
                     { header: 'Điểm danh lúc', keys: ['attendance_time', 'attended_at', 'checked_at'], type: 'datetime' },
                     { header: 'Phương thức', keys: ['attendance_method', 'method'], type: 'status' },
-                    { header: 'ết quả', keys: ['rekognition_result', 'result'], type: 'status' },
+                    { header: 'Kết quả', keys: ['rekognition_result', 'result'], type: 'status' },
                     // { header: 'Do tin cay', keys: ['confidence'] },
                 ]}
                 emptyText="Chưa có bản ghi điểm danh nào."
