@@ -18,13 +18,21 @@ export default function useApiResource(endpoint, query = {}) {
             })
             
             const url = params.toString() ? `${endpoint}?${params}` : endpoint
-            console.log('Calling API:', url)
             const response = await api.get(url)
-            console.log('API Response:', response.data)
-            console.log('Data extracted:', response.data?.data ?? response.data)
-            setData(response.data?.data ?? response.data)
+            
+            // Handle different response structures
+            let extractedData = response.data
+            if (response.data?.data) {
+                // Check if it's paginated (has nested data array)
+                if (Array.isArray(response.data.data.data)) {
+                    extractedData = response.data.data
+                } else {
+                    extractedData = response.data.data
+                }
+            }
+            
+            setData(extractedData)
         } catch (err) {
-            console.error('API Error:', err)
             setError(err?.response?.data?.message || err.message || 'Khong tai duoc du lieu')
         } finally {
             setLoading(false)

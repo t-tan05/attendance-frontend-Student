@@ -1,6 +1,7 @@
 import useApiResource from '../hooks/useApiResource'
 
 function toRows(data) {
+    // Direct array
     if (Array.isArray(data)) {
         return data
     }
@@ -9,10 +10,17 @@ function toRows(data) {
         return []
     }
 
+    // Handle pagination: data.data (Laravel standard)
+    if (Array.isArray(data.data)) {
+        return data.data
+    }
+
+    // Handle items
     if (Array.isArray(data.items)) {
         return data.items
     }
 
+    // Handle list
     if (Array.isArray(data.list)) {
         return data.list
     }
