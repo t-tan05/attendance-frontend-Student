@@ -92,7 +92,7 @@ export default function EndpointTable({
     endpoint,
     query,
     columns,
-    emptyText = 'Khong co du lieu.',
+    emptyText = 'Không có dữ liệu.',
 }) {
     const { data, loading, error, reload } = useApiResource(endpoint, query)
     const rows = toRows(data)

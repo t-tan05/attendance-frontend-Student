@@ -30,7 +30,7 @@ export default function PostActionPanel({ title, endpoint, description, payloadH
         try {
             parsed = payload.trim() ? JSON.parse(payload) : {}
         } catch {
-            setError('Payload JSON khong hop le')
+            setError('Payload JSON Không hợp lệ')
             return
         }
 

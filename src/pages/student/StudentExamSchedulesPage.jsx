@@ -22,7 +22,7 @@ export default function StudentExamSchedulesPage() {
                 <div className="lookup-form" style={{ marginTop: '12px' }}>
                     <input
                         type="text"
-                        placeholder="Tim kiem lich thi (ten mon, lop, ...)"
+                        placeholder="Tìm kiếm lịch thi (tên môn, mã môn, lớp, ...)"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{ marginBottom: '8px' }}
