@@ -14,8 +14,8 @@ export default function StudentExamSchedulesPage() {
             <div className="resource-panel">
                 <div className="resource-head">
                     <div>
-                        <h2>Lich thi cua ban</h2>
-                        <p>Danh sach lich thi duoc cap cho sinh vien hien tai.</p>
+                        <h2>Lịch thi của bạn</h2>
+                        <p>Danh sách lịch thi được cấp cho sinh viên hiện tại.</p>
                     </div>
                 </div>
                 
@@ -34,15 +34,15 @@ export default function StudentExamSchedulesPage() {
                 endpoint="/student/exam-schedules"
                 query={query}
                 columns={[
-                    { header: 'Mon hoc', keys: ['subject_name', 'subject.subject_name'] },
-                    { header: 'Ma mon', keys: ['subject_code'] },
-                    { header: 'Ngay thi', keys: ['exam_date', 'date'], type: 'date' },
-                    { header: 'Gio bat dau', keys: ['exam_time', 'start_time'], type: 'datetime' },
-                    { header: 'Thoi luong (phut)', keys: ['duration'] },
-                    { header: 'Phong', keys: ['room', 'room_name'] },
-                    { header: 'Ghi chu', keys: ['note'] },
+                    { header: 'Mã môn', keys: ['subject_code'] },
+                    { header: 'Môn học', keys: ['subject_name', 'subject.subject_name'] },
+                    { header: 'Ngày thi', keys: ['exam_date', 'date'], type: 'date' },
+                    { header: 'Giờ bắt đầu', keys: ['exam_time', 'start_time'], type: 'datetime' },
+                    { header: 'Thời lượng (phút)', keys: ['duration'] },
+                    { header: 'Phòng', keys: ['room', 'room_name'] },
+                    { header: 'Ghi chú', keys: ['note'] },
                 ]}
-                emptyText="Ban chua co lich thi nao."
+                emptyText="Bạn chưa có lịch thi nào."
             />
         </div>
     )
