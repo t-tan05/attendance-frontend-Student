@@ -82,10 +82,11 @@ export default function EndpointTable({
     title,
     description,
     endpoint,
+    query,
     columns,
     emptyText = 'Khong co du lieu.',
 }) {
-    const { data, loading, error, reload } = useApiResource(endpoint)
+    const { data, loading, error, reload } = useApiResource(endpoint, query)
     const rows = toRows(data)
 
     return (
