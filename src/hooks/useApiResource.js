@@ -18,9 +18,13 @@ export default function useApiResource(endpoint, query = {}) {
             })
             
             const url = params.toString() ? `${endpoint}?${params}` : endpoint
+            console.log('Calling API:', url)
             const response = await api.get(url)
+            console.log('API Response:', response.data)
+            console.log('Data extracted:', response.data?.data ?? response.data)
             setData(response.data?.data ?? response.data)
         } catch (err) {
+            console.error('API Error:', err)
             setError(err?.response?.data?.message || err.message || 'Khong tai duoc du lieu')
         } finally {
             setLoading(false)

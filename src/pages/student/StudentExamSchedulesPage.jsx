@@ -27,7 +27,7 @@ export default function StudentExamSchedulesPage() {
 
             <EndpointTable
                 endpoint="/student/exam-schedules"
-                query={{ q: searchQuery || undefined }}
+                query={searchQuery ? { q: searchQuery } : {}}
                 columns={[
                     { header: 'Mon hoc', keys: ['subject_name', 'course_name', 'exam_name', 'title'] },
                     { header: 'Lop', keys: ['class_name', 'class_code'] },
