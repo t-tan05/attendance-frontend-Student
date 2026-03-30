@@ -37,7 +37,7 @@ export default function useApiResource(endpoint, query = {}) {
             
             setData(extractedData)
         } catch (err) {
-            setError(err?.response?.data?.message || err.message || 'Khong tai duoc du lieu')
+            setError(err?.response?.data?.message || err.message || 'Không tải được dữ liệu')
         } finally {
             setLoading(false)
         }
