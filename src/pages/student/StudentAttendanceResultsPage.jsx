@@ -1,5 +1,6 @@
 import EndpointTable from '../../components/EndpointTable'
 
+
 export default function StudentAttendanceResultsPage() {
     return (
         <div className="stacked-grid">
@@ -10,7 +11,6 @@ export default function StudentAttendanceResultsPage() {
                         <p>Thông tin điểm danh trong các lịch thi của sinh viên.</p>
                     </div>
                 </div>
-                <p className="resource-endpoint">GET /student/attendance-results</p>
             </div>
 
             <EndpointTable

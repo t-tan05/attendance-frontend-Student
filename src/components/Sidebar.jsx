@@ -32,7 +32,6 @@ const Sidebar = ({ onCollapseChange }) => {
         { path: '/lecturer/exam-schedules', label: 'Lịch coi thi', icon: <FaClipboardList />, role: 'lecturer' },
         { path: '/lecturer/today-exams', label: 'Ca thi hôm nay', icon: <FaCalendarDay />, role: 'lecturer' },
         { path: '/lecturer/current-exam', label: 'Ca thi hiện tại', icon: <FaClock />, role: 'lecturer' },
-        { path: '/profile', label: 'Hồ sơ', icon: <FaUser />, role: 'all' },
     ];
 
     const { user } = useAuth(); // Get user from auth context

@@ -76,6 +76,10 @@ function formatValue(value, type) {
     }
 
     if (type === 'status') {
+        if (String(value).toLowerCase() === 'match') {
+            return 'có mặt';
+        }
+        // For other status values, still replace underscores with spaces
         return String(value).replaceAll('_', ' ')
     }
 
@@ -106,8 +110,6 @@ export default function EndpointTable({
                 </div>
                 <button type="button" onClick={reload}>Tải lại</button>
             </div>
-            <p className="resource-endpoint">GET {endpoint}</p>
-
             {loading ? <p className="info-note">Đang tải dữ liệu...</p> : null}
             {error ? <p className="error-note">{error}</p> : null}
 

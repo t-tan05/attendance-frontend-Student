@@ -207,6 +207,7 @@ export default function StudentFaceRegistrationPage() {
                             disabled={!canRegister || uploading}
                             style={{ display: 'none' }}
                         />
+                            VD: DH52200529.png
                         {selectedFile && (
                             <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
                                 Đã chọn: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
