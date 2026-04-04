@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Import axios for direct S3 upload
 import api from '../api/client'; // Assuming client.js is in src/api
+import { useAuth } from '../auth/AuthContext'; // Import useAuth
 
-const AvatarUpload = ({ studentCode }) => {
+const AvatarUpload = () => { // Removed studentCode prop
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
+    const { user } = useAuth(); // Get user from auth context
     const [uploading, setUploading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -26,6 +28,12 @@ const AvatarUpload = ({ studentCode }) => {
         event.preventDefault();
         if (!selectedFile) {
             setError('Please select an image to upload.');
+            return;
+        }
+
+        const studentCode = user?.student_code || user?.code;
+        if (!studentCode) {
+            setError('Student code not found. Cannot upload avatar.');
             return;
         }
 

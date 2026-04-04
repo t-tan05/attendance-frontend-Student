@@ -9,6 +9,7 @@ import StudentAttendanceResultsPage from './pages/student/StudentAttendanceResul
 import StudentExamSchedulesPage from './pages/student/StudentExamSchedulesPage'
 import StudentFaceRegistrationPage from './pages/student/StudentFaceRegistrationPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import AvatarUpload from './components/AvatarUpload' // Import AvatarUpload
 import './App.css'
 
 function HomeRedirect() {
@@ -50,6 +51,7 @@ function AppRoutes() {
         <Route path="exam-schedules" element={<StudentExamSchedulesPage />} />
         <Route path="attendance-results" element={<StudentAttendanceResultsPage />} />
         <Route path="face-registration" element={<StudentFaceRegistrationPage />} />
+        <Route path="profile" element={<AvatarUpload />} /> {/* Add profile route for student */}
       </Route>
 
       <Route
@@ -63,6 +65,7 @@ function AppRoutes() {
         <Route path="exam-schedules" element={<LecturerExamSchedulesPage />} />
         <Route path="today-exams" element={<LecturerTodayExamsPage />} />
         <Route path="current-exam" element={<LecturerCurrentExamPage />} />
+        <Route path="profile" element={<AvatarUpload />} /> {/* Add profile route for lecturer */}
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
