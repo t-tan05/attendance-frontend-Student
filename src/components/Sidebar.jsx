@@ -35,23 +35,35 @@ const Sidebar = ({ onCollapseChange }) => {
             {/* Toggle Button */}
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
+                title={isCollapsed ? 'Mở sidebar' : 'Đóng sidebar'}
                 style={{
                     position: 'fixed',
-                    left: isCollapsed ? '260px' : '10px',
+                    left: isCollapsed ? '10px' : '290px',
                     top: '20px',
-                    zIndex: 1001,
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    width: '40px',
-                    height: '40px',
+                    zIndex: 10000,
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '45px',
+                    height: '45px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    transition: 'left 0.3s ease',
-                    fontSize: '1.2rem'
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+                    transition: 'all 0.3s ease',
+                    fontSize: '1.5rem',
+                    fontWeight: 'bold',
+                    outline: 'none'
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2563eb';
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#3b82f6';
+                    e.currentTarget.style.transform = 'scale(1)';
                 }}
             >
                 {isCollapsed ? '☰' : '✕'}
