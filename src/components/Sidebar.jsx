@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import {
+    FaCalendarAlt,
+    FaCheckCircle,
+    FaCamera,
+    FaClipboardList,
+    FaCalendarDay,
+    FaClock,
+    FaUser,
+    FaSignOutAlt,
+    FaChevronLeft,
+    FaChevronRight
+} from 'react-icons/fa';
+import { useAuth } from '../auth/AuthContext'; // Import useAuth
 
 const Sidebar = ({ onCollapseChange }) => {
     const location = useLocation();
@@ -12,19 +25,18 @@ const Sidebar = ({ onCollapseChange }) => {
         }
     }, [isCollapsed, onCollapseChange]);
 
-    const navItems = [
-        { path: '/student/exam-schedules', label: 'Lịch thi', icon: '📅', role: 'student' },
-        { path: '/student/attendance-results', label: 'Kết quả điểm danh', icon: '✅', role: 'student' },
-        { path: '/student/face-registration', label: 'Đăng ký khuôn mặt', icon: '📷', role: 'student' },
-        { path: '/lecturer/exam-schedules', label: 'Lịch coi thi', icon: '📋', role: 'lecturer' },
-        { path: '/lecturer/today-exams', label: 'Ca thi hôm nay', icon: '📆', role: 'lecturer' },
-        { path: '/lecturer/current-exam', label: 'Ca thi hiện tại', icon: '⏰', role: 'lecturer' },
-        { path: '/profile', label: 'Hồ sơ', icon: '👤', role: 'all' },
-        { path: '/logout', label: 'Đăng xuất', icon: '🚪', role: 'all' },
+    const navItems = [ // Using React Icons for a more consistent and professional look
+        { path: '/student/exam-schedules', label: 'Lịch thi', icon: <FaCalendarAlt />, role: 'student' },
+        { path: '/student/attendance-results', label: 'Kết quả điểm danh', icon: <FaCheckCircle />, role: 'student' },
+        { path: '/student/face-registration', label: 'Đăng ký khuôn mặt', icon: <FaCamera />, role: 'student' },
+        { path: '/lecturer/exam-schedules', label: 'Lịch coi thi', icon: <FaClipboardList />, role: 'lecturer' },
+        { path: '/lecturer/today-exams', label: 'Ca thi hôm nay', icon: <FaCalendarDay />, role: 'lecturer' },
+        { path: '/lecturer/current-exam', label: 'Ca thi hiện tại', icon: <FaClock />, role: 'lecturer' },
+        { path: '/profile', label: 'Hồ sơ', icon: <FaUser />, role: 'all' },
     ];
 
-    // Placeholder: In a real application, you would get the user's role from context/state
-    const currentUserRole = 'student'; // Change to 'lecturer' to see lecturer links
+    const { user } = useAuth(); // Get user from auth context
+    const currentUserRole = user?.role;
 
     const filteredNavItems = navItems.filter(item =>
         item.role === 'all' || item.role === currentUserRole
@@ -66,9 +78,9 @@ const Sidebar = ({ onCollapseChange }) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'all 0.2s ease'
-                }}
+                }} // Using React Icons for collapse/expand indication
             >
-                {isCollapsed ? '☰' : '✕'}
+                {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
             </button>
 
             {!isCollapsed && (
@@ -108,8 +120,8 @@ const Sidebar = ({ onCollapseChange }) => {
                                                 e.currentTarget.style.borderColor = 'transparent';
                                             }
                                         }}
-                                    >
-                                        <span style={{ fontSize: '1.3rem' }}>{item.icon}</span>
+                                    > {/* Render the React Icon component */}
+                                        <span style={{ fontSize: '1.3rem' }}>{item.icon}</span> 
                                         <span>{item.label}</span>
                                     </Link>
                                 </li>
