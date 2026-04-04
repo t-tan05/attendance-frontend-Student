@@ -1,54 +1,115 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import api from '../../api/client'
-import EndpointTable from '../../components/EndpointTable'
+import { useAuth } from '../../auth/AuthContext'
 
 export default function StudentFaceRegistrationPage() {
-    const [uploadPayload, setUploadPayload] = useState(`{
-  "file_name": "student-face.jpg",
-  "content_type": "image/jpeg"
-}`)
-    const [confirmPayload, setConfirmPayload] = useState(`{
-  "file_key": "faces/student-face.jpg"
-}`)
-    const [uploadLoading, setUploadLoading] = useState(false)
-    const [confirmLoading, setConfirmLoading] = useState(false)
-    const [uploadResult, setUploadResult] = useState(null)
-    const [confirmResult, setConfirmResult] = useState(null)
+    const { user } = useAuth()
+    const [selectedFile, setSelectedFile] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState(null)
+    const [uploading, setUploading] = useState(false)
+    const [message, setMessage] = useState('')
     const [error, setError] = useState('')
+    const [windowInfo, setWindowInfo] = useState(null)
+    const [loadingWindow, setLoadingWindow] = useState(true)
 
-    const handleGenerateUploadUrl = async (e) => {
-        e.preventDefault()
-        setError('')
-        setUploadResult(null)
-        setUploadLoading(true)
+    // Fetch registration window info on mount
+    useEffect(() => {
+        fetchWindowInfo()
+    }, [])
 
+    const fetchWindowInfo = async () => {
         try {
-            const parsed = JSON.parse(uploadPayload)
-            const response = await api.post('/student/face-registration/generate-upload-url', parsed)
-            setUploadResult(response.data)
+            setLoadingWindow(true)
+            const response = await api.get('/student/face-registration/window')
+            setWindowInfo(response.data)
         } catch (err) {
-            setError(err?.response?.data?.message || err.message || 'Không tạo được upload URL')
+            console.error('Failed to fetch window info:', err)
         } finally {
-            setUploadLoading(false)
+            setLoadingWindow(false)
         }
     }
 
-    const handleConfirmUpload = async (e) => {
-        e.preventDefault()
-        setError('')
-        setConfirmResult(null)
-        setConfirmLoading(true)
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]
+        if (file) {
+            // Validate file type
+            if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                setError('Chỉ chấp nhận file JPG hoặc PNG')
+                return
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError('Kích thước file không được vượt quá 5MB')
+                return
+            }
 
-        try {
-            const parsed = JSON.parse(confirmPayload)
-            const response = await api.post('/student/face-registration/confirm-upload', parsed)
-            setConfirmResult(response.data)
-        } catch (err) {
-            setError(err?.response?.data?.message || err.message || 'Không xác nhận được upload')
-        } finally {
-            setConfirmLoading(false)
+            setSelectedFile(file)
+            setPreviewUrl(URL.createObjectURL(file))
+            setMessage('')
+            setError('')
         }
     }
+
+    const handleSubmit = async (event) => {
+        event.preventDefault()
+        
+        if (!selectedFile) {
+            setError('Vui lòng chọn ảnh để tải lên')
+            return
+        }
+
+        const studentCode = user?.student_code || user?.code
+        if (!studentCode) {
+            setError('Không tìm thấy mã sinh viên. Không thể tải lên ảnh.')
+            return
+        }
+
+        setUploading(true)
+        setMessage('')
+        setError('')
+
+        try {
+            // Step 1: Generate upload URL
+            const fileName = `${studentCode}.${selectedFile.name.split('.').pop()}`
+            const fileType = selectedFile.type
+
+            const generateResponse = await api.post('/student/face-registration/generate-upload-url', {
+                file_name: fileName,
+                file_type: fileType,
+            })
+
+            const { upload_url } = generateResponse.data
+
+            // Step 2: Upload image directly to S3
+            await axios.put(upload_url, selectedFile, {
+                headers: {
+                    'Content-Type': fileType,
+                },
+            })
+
+            // Step 3: Confirm upload with backend
+            await api.post('/student/face-registration/confirm-upload', {
+                file_name: fileName,
+            })
+
+            setMessage('Tải lên ảnh đại diện thành công!')
+            setSelectedFile(null)
+            setPreviewUrl(null)
+            
+            // Refresh window info
+            fetchWindowInfo()
+
+        } catch (err) {
+            console.error('Upload error:', err)
+            setError(`Tải lên thất bại: ${err.response?.data?.message || err.message}`)
+        } finally {
+            setUploading(false)
+        }
+    }
+
+    const canRegister = windowInfo?.can_register || windowInfo?.is_open || windowInfo?.is_available
 
     return (
         <div className="stacked-grid">
@@ -56,117 +117,192 @@ export default function StudentFaceRegistrationPage() {
                 <div className="resource-head">
                     <div>
                         <h2>Đăng ký khuôn mặt</h2>
-                        <p>Hồ sơ đăng ký ảnh khuôn mặt cho sinh viên.</p>
+                        <p>Tải lên ảnh khuôn mặt của bạn để sử dụng cho điểm danh.</p>
                     </div>
                 </div>
-                <p className="resource-endpoint">Quy trình đăng ký: Kiểm tra window {'->'} Tạo URL {'->'} Upload {'->'} Xác nhận</p>
             </div>
 
-            <EndpointTable
-                endpoint="/student/face-registration/window"
-                columns={[
-                    { header: 'Mở đăng ký', keys: ['is_open', 'is_available', 'open'], type: 'status' },
-                    { header: 'Bắt đầu', keys: ['start_at', 'start_time'], type: 'datetime' },
-                    { header: 'Kết thúc', keys: ['end_at', 'end_time'], type: 'datetime' },
-                    { header: 'Trạng thái', keys: ['status', 'message'], type: 'status' },
-                ]}
-                emptyText="Không có thông tin khung đăng ký."
-            />
+            {/* Window Status */}
+            {loadingWindow ? (
+                <div className="resource-panel">
+                    <p>Đang kiểm tra trạng thái đăng ký...</p>
+                </div>
+            ) : windowInfo ? (
+                <div className="resource-panel">
+                    <div className="resource-head">
+                        <div>
+                            <h3>Trạng thái đăng ký</h3>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem' }}>
+                        <div>
+                            <strong>Trạng thái:</strong>{' '}
+                            <span style={{ 
+                                color: canRegister ? '#10b981' : '#ef4444',
+                                fontWeight: 'bold'
+                            }}>
+                                {canRegister ? 'Đang mở đăng ký' : 'Chưa mở đăng ký'}
+                            </span>
+                        </div>
+                        {windowInfo.start_at && (
+                            <div>
+                                <strong>Bắt đầu:</strong> {new Date(windowInfo.start_at).toLocaleString('vi-VN')}
+                            </div>
+                        )}
+                        {windowInfo.end_at && (
+                            <div>
+                                <strong>Kết thúc:</strong> {new Date(windowInfo.end_at).toLocaleString('vi-VN')}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : null}
 
+            {/* Upload Form */}
             <section className="resource-panel">
                 <div className="resource-head">
                     <div>
-                        <h2>Bước 1: Tạo upload URL</h2>
-                        <p>Sinh signed URL để upload ảnh khuôn mặt lên storage.</p>
+                        <h2>Tải lên ảnh đại diện</h2>
+                        <p>Chọn ảnh khuôn mặt rõ ràng, ánh sáng tốt, nhìn thẳng vào camera</p>
                     </div>
                 </div>
-                <p className="resource-endpoint">POST /student/face-registration/generate-upload-url</p>
 
-                <form className="post-form" onSubmit={handleGenerateUploadUrl}>
-                    <textarea
-                        rows={5}
-                        value={uploadPayload}
-                        onChange={(e) => setUploadPayload(e.target.value)}
-                        spellCheck="false"
-                    />
-                    <button type="submit" disabled={uploadLoading}>
-                        {uploadLoading ? 'Đang xử lý...' : 'Tạo upload URL'}
+                {!canRegister && !loadingWindow && (
+                    <div style={{ 
+                        padding: '1rem', 
+                        backgroundColor: '#fef3c7', 
+                        borderLeft: '4px solid #f59e0b',
+                        marginBottom: '1.5rem',
+                        borderRadius: '4px'
+                    }}>
+                        <p style={{ margin: 0, color: '#92400e' }}>
+                            ⚠️ Hiện tại chưa trong khung thời gian đăng ký. Vui lòng thử lại sau.
+                        </p>
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} style={{ marginTop: '1.5rem' }}>
+                    {/* File Input */}
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label 
+                            htmlFor="avatar-upload" 
+                            style={{
+                                display: 'inline-block',
+                                padding: '0.75rem 1.5rem',
+                                backgroundColor: canRegister ? '#3b82f6' : '#9ca3af',
+                                color: 'white',
+                                borderRadius: '0.5rem',
+                                cursor: canRegister ? 'pointer' : 'not-allowed',
+                                fontWeight: '500',
+                                transition: 'background-color 0.2s'
+                            }}
+                        >
+                            📷 Chọn ảnh
+                        </label>
+                        <input
+                            id="avatar-upload"
+                            type="file"
+                            accept="image/jpeg,image/png"
+                            onChange={handleFileChange}
+                            disabled={!canRegister || uploading}
+                            style={{ display: 'none' }}
+                        />
+                        {selectedFile && (
+                            <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
+                                Đã chọn: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Image Preview */}
+                    {previewUrl && (
+                        <div style={{ 
+                            marginBottom: '1.5rem',
+                            padding: '1rem',
+                            backgroundColor: '#f9fafb',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #e5e7eb'
+                        }}>
+                            <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#374151' }}>
+                                Xem trước ảnh:
+                            </h4>
+                            <img 
+                                src={previewUrl} 
+                                alt="Xem trước ảnh đại diện" 
+                                style={{ 
+                                    maxWidth: '300px', 
+                                    maxHeight: '300px', 
+                                    width: '100%',
+                                    objectFit: 'contain', 
+                                    borderRadius: '0.5rem',
+                                    border: '2px solid #e5e7eb'
+                                }} 
+                            />
+                        </div>
+                    )}
+
+                    {/* Submit Button */}
+                    <button 
+                        type="submit" 
+                        disabled={!selectedFile || uploading || !canRegister}
+                        style={{
+                            padding: '0.75rem 2rem',
+                            backgroundColor: (!selectedFile || uploading || !canRegister) ? '#9ca3af' : '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.5rem',
+                            cursor: (!selectedFile || uploading || !canRegister) ? 'not-allowed' : 'pointer',
+                            fontWeight: '600',
+                            fontSize: '1rem',
+                            transition: 'background-color 0.2s'
+                        }}
+                    >
+                        {uploading ? '⏳ Đang tải lên...' : '✅ Tải lên ảnh'}
                     </button>
                 </form>
 
-                {error && !uploadLoading && !confirmLoading ? <p className="error-note">{error}</p> : null}
-                
-                {uploadResult ? (
-                    <article className="json-card">
-                        <div className="row">
-                            <strong>Trạng thái</strong>
-                            <span>{uploadResult?.status ?? uploadResult?.success ?? 'N/A'}</span>
-                        </div>
-                        {uploadResult?.message ? (
-                            <div className="row">
-                                <strong>Thông báo</strong>
-                                <span>{uploadResult.message}</span>
-                            </div>
-                        ) : null}
-                        {uploadResult?.upload_url ? (
-                            <div className="row">
-                                <strong>Upload URL</strong>
-                                <pre>{uploadResult.upload_url}</pre>
-                            </div>
-                        ) : null}
-                        {uploadResult?.s3_key ? (
-                            <div className="row">
-                                <strong>S3 Key</strong>
-                                <pre>{uploadResult.s3_key}</pre>
-                            </div>
-                        ) : null}
-                        {uploadResult?.expires_at ? (
-                            <div className="row">
-                                <strong>Hết hạn</strong>
-                                <span>{uploadResult.expires_at}</span>
-                            </div>
-                        ) : null}
-                    </article>
-                ) : null}
+                {/* Messages */}
+                {message && (
+                    <div style={{ 
+                        marginTop: '1.5rem',
+                        padding: '1rem',
+                        backgroundColor: '#d1fae5',
+                        borderLeft: '4px solid #10b981',
+                        borderRadius: '4px'
+                    }}>
+                        <p style={{ margin: 0, color: '#065f46' }}>{message}</p>
+                    </div>
+                )}
+
+                {error && (
+                    <div style={{ 
+                        marginTop: '1.5rem',
+                        padding: '1rem',
+                        backgroundColor: '#fee2e2',
+                        borderLeft: '4px solid #ef4444',
+                        borderRadius: '4px'
+                    }}>
+                        <p style={{ margin: 0, color: '#991b1b' }}>{error}</p>
+                    </div>
+                )}
             </section>
 
+            {/* Guidelines */}
             <section className="resource-panel">
                 <div className="resource-head">
                     <div>
-                        <h2>Bước 2: Xác nhận upload</h2>
-                        <p>Sau khi upload ảnh xong, gọi endpoint này để xác nhận.</p>
+                        <h2>Hướng dẫn chụp ảnh</h2>
                     </div>
                 </div>
-                <p className="resource-endpoint">POST /student/face-registration/confirm-upload</p>
-
-                <form className="post-form" onSubmit={handleConfirmUpload}>
-                    <textarea
-                        rows={5}
-                        value={confirmPayload}
-                        onChange={(e) => setConfirmPayload(e.target.value)}
-                        spellCheck="false"
-                    />
-                    <button type="submit" disabled={confirmLoading}>
-                        {confirmLoading ? 'Đang xử lý...' : 'Xác nhận upload'}
-                    </button>
-                </form>
-
-                {error && confirmLoading ? <p className="error-note">{error}</p> : null}
-                
-                {confirmResult ? (
-                    <article className="json-card">
-                        <div className="row">
-                            <strong>Trạng thái</strong>
-                            <span>{confirmResult?.status ?? confirmResult?.success ?? 'N/A'}</span>
-                        </div>
-                        {confirmResult?.message ? (
-                            <div className="row">
-                                <strong>Thông báo</strong>
-                                <span>{confirmResult.message}</span>
-                            </div>
-                        ) : null}
-                    </article>
-                ) : null}
+                <ul style={{ lineHeight: '1.8', paddingLeft: '1.5rem' }}>
+                    <li>Ảnh rõ nét, không bị mờ</li>
+                    <li>Ánh sáng đầy đủ, không quá tối hoặc quá sáng</li>
+                    <li>Nhìn thẳng vào camera, không nghiêng đầu</li>
+                    <li>Không đeo kính râm, khẩu trang hoặc vật che mặt</li>
+                    <li>Phông nền đơn giản, tương phản với khuôn mặt</li>
+                    <li>Định dạng: JPG hoặc PNG, tối đa 5MB</li>
+                    <li>Tên file phải chứa mã sinh viên của bạn</li>
+                </ul>
             </section>
         </div>
     )
