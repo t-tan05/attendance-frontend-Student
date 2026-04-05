@@ -45,6 +45,33 @@ export default function StudentFaceRegistrationPage() {
                 return
             }
 
+            // Validate filename format: must start with DH/dh + student code
+            const studentCode = user?.student_code || user?.code
+            if (studentCode) {
+                const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, '')
+                const normalizedFileName = fileNameWithoutExt.toUpperCase()
+                const normalizedStudentCode = studentCode.toUpperCase()
+                
+                // Check if filename starts with DH or dh
+                if (!normalizedFileName.startsWith('DH')) {
+                    setError('Tên file phải bắt đầu bằng "DH" hoặc "dh"')
+                    return
+                }
+                
+                // Check if filename contains student code
+                if (!normalizedFileName.includes(normalizedStudentCode)) {
+                    setError(`Tên file phải chứa mã số sinh viên của bạn (${studentCode})`)
+                    return
+                }
+                
+                // More strict validation: filename should be exactly DH + student code or DH + student code + suffix
+                const expectedPattern = new RegExp(`^DH${normalizedStudentCode}`, 'i')
+                if (!expectedPattern.test(fileNameWithoutExt)) {
+                    setError(`Tên file phải có định dạng: DH${studentCode} hoặc DH${studentCode}_suffix`)
+                    return
+                }
+            }
+
             setSelectedFile(file)
             setPreviewUrl(URL.createObjectURL(file))
             setMessage('')
@@ -207,10 +234,12 @@ export default function StudentFaceRegistrationPage() {
                             disabled={!canRegister || uploading}
                             style={{ display: 'none' }}
                         />
-                            VD: DH52200529.png
+                        <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
+                            💡 Ví dụ: <strong>DH{user?.student_code || '52200529'}.png</strong> hoặc <strong>DH{user?.student_code || '52200529'}.jpg</strong>
+                        </p>
                         {selectedFile && (
                             <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
-                                Đã chọn: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                                ✅ Đã chọn: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
                             </p>
                         )}
                     </div>
@@ -248,7 +277,7 @@ export default function StudentFaceRegistrationPage() {
                         disabled={!selectedFile || uploading || !canRegister}
                         style={{
                             padding: '0.75rem 2rem',
-                            backgroundColor: (!selectedFile || uploading || !canRegister) ? '#9ca3af' : '#10b981',
+                            backgroundColor: (!selectedFile || uploading || !canRegister) ? '#000' : '#10b981',
                             color: 'white',
                             border: 'none',
                             borderRadius: '0.5rem',
@@ -258,7 +287,7 @@ export default function StudentFaceRegistrationPage() {
                             transition: 'background-color 0.2s'
                         }}
                     >
-                        {uploading ? '⏳ Đang tải lên...' : '✅ Tải lên ảnh'}
+                        {uploading ? 'Đang tải lên...' : 'Tải lên ảnh'}
                     </button>
                 </form>
 
@@ -302,8 +331,28 @@ export default function StudentFaceRegistrationPage() {
                     <li>Không đeo kính râm, khẩu trang hoặc vật che mặt</li>
                     <li>Phông nền đơn giản, tương phản với khuôn mặt</li>
                     <li>Định dạng: JPG hoặc PNG, tối đa 5MB</li>
-                    <li>Tên file phải chứa mã sinh viên của bạn</li>
                 </ul>
+                
+                <div style={{ 
+                    marginTop: '1.5rem',
+                    padding: '1rem',
+                    backgroundColor: '#eff6ff',
+                    borderLeft: '4px solid #3b82f6',
+                    borderRadius: '4px'
+                }}>
+                    <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: '#1e40af' }}>📝 Quy tắc đặt tên file:</h3>
+                    <p style={{ margin: '0 0 0.5rem 0', color: '#1e40af' }}>
+                        Tên file <strong>bắt buộc</strong> phải có định dạng:
+                    </p>
+                    <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', color: '#1e40af' }}>
+                        <li><strong>DH{user?.student_code || '52200529'}.jpg</strong> (ví dụ: DH52200529.jpg)</li>
+                        <li><strong>DH{user?.student_code || '52200529'}.png</strong> (ví dụ: DH52200529_face.png)</li>
+                        <li><strong>dh{user?.student_code || '52200529'}.jpg</strong> (chữ thường cũng được)</li>
+                    </ul>
+                    <p style={{ margin: '0.5rem 0 0 0', color: '#dc2626', fontWeight: '600' }}>
+                        ⚠️ File không đúng quy tắc đặt tên sẽ bị từ chối!
+                    </p>
+                </div>
             </section>
         </div>
     )

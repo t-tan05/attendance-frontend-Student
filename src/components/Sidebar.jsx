@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     FaCalendarAlt,
     FaCheckCircle,
@@ -12,7 +12,7 @@ import {
     FaChevronLeft,
     FaChevronRight
 } from 'react-icons/fa';
-import { useAuth } from '../auth/AuthContext'; // Import useAuth
+import { useAuth } from '../auth/AuthContext';
 
 const Sidebar = ({ onCollapseChange }) => {
     const location = useLocation();
@@ -25,17 +25,24 @@ const Sidebar = ({ onCollapseChange }) => {
         }
     }, [isCollapsed, onCollapseChange]);
 
-    const navItems = [ // Using React Icons for a more consistent and professional look
+    const navItems = [
         { path: '/student/exam-schedules', label: 'Lịch thi', icon: <FaCalendarAlt />, role: 'student' },
         { path: '/student/attendance-results', label: 'Kết quả điểm danh', icon: <FaCheckCircle />, role: 'student' },
         { path: '/student/face-registration', label: 'Đăng ký khuôn mặt', icon: <FaCamera />, role: 'student' },
         { path: '/lecturer/exam-schedules', label: 'Lịch coi thi', icon: <FaClipboardList />, role: 'lecturer' },
         { path: '/lecturer/today-exams', label: 'Ca thi hôm nay', icon: <FaCalendarDay />, role: 'lecturer' },
         { path: '/lecturer/current-exam', label: 'Ca thi hiện tại', icon: <FaClock />, role: 'lecturer' },
+        { path: '/profile', label: 'Thông tin cá nhân', icon: <FaUser />, role: 'all' },
     ];
 
-    const { user } = useAuth(); // Get user from auth context
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const currentUserRole = user?.role;
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
 
     const filteredNavItems = navItems.filter(item =>
         item.role === 'all' || item.role === currentUserRole
@@ -128,6 +135,39 @@ const Sidebar = ({ onCollapseChange }) => {
                             ))}
                         </ul>
                     </nav>
+
+                    {/* Logout Button */}
+                    <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
+                        <button
+                            onClick={handleLogout}
+                            style={{
+                                width: '100%',
+                                textDecoration: 'none',
+                                color: '#dc2626',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                backgroundColor: '#ffffff important',
+                                border: '1px solid transparent',
+                                cursor: 'pointer',
+                                fontSize: '1rem',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#fee2e2';
+                                e.currentTarget.style.borderColor = '#fecaca';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.borderColor = 'transparent';
+                            }}
+                        >
+                            <span style={{ fontSize: '1.3rem' }}><FaSignOutAlt /></span>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </div>
                 </>
             )}
         </div>

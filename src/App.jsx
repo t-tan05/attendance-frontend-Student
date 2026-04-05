@@ -1,84 +1,39 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import { AuthProvider, useAuth } from './auth/AuthContext'
-import PortalLayout from './layouts/PortalLayout'
-import LoginPage from './pages/LoginPage'
-import LecturerCurrentExamPage from './pages/lecturer/LecturerCurrentExamPage'
-import LecturerExamSchedulesPage from './pages/lecturer/LecturerExamSchedulesPage'
-import LecturerTodayExamsPage from './pages/lecturer/LecturerTodayExamsPage'
-import StudentAttendanceResultsPage from './pages/student/StudentAttendanceResultsPage'
-import StudentExamSchedulesPage from './pages/student/StudentExamSchedulesPage'
-import StudentFaceRegistrationPage from './pages/student/StudentFaceRegistrationPage'
-import ProtectedRoute from './components/ProtectedRoute'
-import AvatarUpload from './components/AvatarUpload' // Import AvatarUpload
-import './App.css'
-
-function HomeRedirect() {
-  const { user, loading } = useAuth()
-
-  if (loading) {
-    return <div className="full-page-loading">Loading...</div>
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
-
-  return user.role === 'lecturer'
-    ? <Navigate to="/lecturer/exam-schedules" replace />
-    : <Navigate to="/student/exam-schedules" replace />
-}
-
-function AppRoutes() {
-  const { loading } = useAuth()
-
-  if (loading) {
-    return <div className="full-page-loading">Loading session...</div>
-  }
-
-  return (
-    <Routes>
-      <Route path="/" element={<HomeRedirect />} />
-      <Route path="/login" element={<LoginPage />} />
-
-      <Route
-        path="/student"
-        element={(
-          <ProtectedRoute role="student">
-            <PortalLayout />
-          </ProtectedRoute>
-        )}
-      >
-        <Route path="exam-schedules" element={<StudentExamSchedulesPage />} />
-        <Route path="attendance-results" element={<StudentAttendanceResultsPage />} />
-        <Route path="face-registration" element={<StudentFaceRegistrationPage />} />
-        <Route path="profile" element={<AvatarUpload />} /> {/* Add profile route for student */}
-      </Route>
-
-      <Route
-        path="/lecturer"
-        element={(
-          <ProtectedRoute role="lecturer">
-            <PortalLayout />
-          </ProtectedRoute>
-        )}
-      >
-        <Route path="exam-schedules" element={<LecturerExamSchedulesPage />} />
-        <Route path="today-exams" element={<LecturerTodayExamsPage />} />
-        <Route path="current-exam" element={<LecturerCurrentExamPage />} />
-        <Route path="profile" element={<AvatarUpload />} /> {/* Add profile route for lecturer */}
-      </Route>
-
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  )
-}
+import { Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import Dashboard from './pages/Dashboard';
+import StudentExamSchedulesPage from './pages/student/StudentExamSchedulesPage';
+import StudentAttendanceResultsPage from './pages/student/StudentAttendanceResultsPage';
+import StudentFaceRegistrationPage from './pages/student/StudentFaceRegistrationPage';
+import LecturerExamSchedulesPage from './pages/lecturer/LecturerExamSchedulesPage';
+import LecturerTodayExamsPage from './pages/lecturer/LecturerTodayExamsPage';
+import LecturerCurrentExamPage from './pages/lecturer/LecturerCurrentExamPage';
+import UserProfilePage from './pages/UserProfilePage';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './Layout';
 
 function App() {
-  return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
-  )
+  return ( 
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      
+      <Route path="/" element={<Layout />}>
+        <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+
+        {/* Student Routes */}
+        <Route path="/student/exam-schedules" element={<ProtectedRoute role="student"><StudentExamSchedulesPage /></ProtectedRoute>} />
+        <Route path="/student/attendance-results" element={<ProtectedRoute role="student"><StudentAttendanceResultsPage /></ProtectedRoute>} />
+        <Route path="/student/face-registration" element={<ProtectedRoute role="student"><StudentFaceRegistrationPage /></ProtectedRoute>} />
+
+        {/* Lecturer Routes */}
+        <Route path="/lecturer/exam-schedules" element={<ProtectedRoute role="lecturer"><LecturerExamSchedulesPage /></ProtectedRoute>} />
+        <Route path="/lecturer/today-exams" element={<ProtectedRoute role="lecturer"><LecturerTodayExamsPage /></ProtectedRoute>} />
+        <Route path="/lecturer/current-exam" element={<ProtectedRoute role="lecturer"><LecturerCurrentExamPage /></ProtectedRoute>} />
+
+        {/* User Profile Route */}
+        <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
+      </Route>
+    </Routes>
+  );
 }
 
-export default App
+export default App;

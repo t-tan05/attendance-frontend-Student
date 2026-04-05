@@ -108,7 +108,7 @@ export default function EndpointTable({
                     <h2>{title}</h2>
                     <p>{description}</p>
                 </div>
-                <button type="button" onClick={reload}>Tải lại</button>
+                <button type="button" style={{backgroundColor: '#000'}} onClick={reload}>Tải lại</button>
             </div>
             {loading ? <p className="info-note">Đang tải dữ liệu...</p> : null}
             {error ? <p className="error-note">{error}</p> : null}
