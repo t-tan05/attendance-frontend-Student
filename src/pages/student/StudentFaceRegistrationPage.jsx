@@ -45,24 +45,6 @@ export default function StudentFaceRegistrationPage() {
                 return
             }
 
-            const studentCode = user?.student_code || user?.code
-            if (!studentCode) {
-                setError('Không tìm thấy mã sinh viên. Vui lòng đăng nhập lại.')
-                return
-            }
-
-            const fileNameLower = file.name.toLowerCase()
-            const studentCodeLower = studentCode.toLowerCase()
-
-            if (!fileNameLower.startsWith('dh') && !fileNameLower.startsWith('dh')) {
-                setError('Tên file phải bắt đầu bằng "DH" hoặc "dh".')
-                return
-            }
-            if (!fileNameLower.includes(studentCodeLower)) {
-                setError('Tên file phải chứa mã sinh viên của bạn.')
-                return
-            }
-
             setSelectedFile(file)
             setPreviewUrl(URL.createObjectURL(file))
             setMessage('')
@@ -94,16 +76,11 @@ export default function StudentFaceRegistrationPage() {
             const fileType = selectedFile.type
 
             const generateResponse = await api.post('/student/face-registration/generate-upload-url', {
-                files: [ // Backend expects an array of files
-                    {
-                        file_name: fileName,
-                        file_type: fileType,
-                    }
-                ]
+                file_name: fileName,
+                file_type: fileType,
             })
 
-            const { data: uploadData } = generateResponse.data // Response data contains an array of upload info
-            const { upload_url } = uploadData[0] // Get the upload_url for the first (and only) file
+            const { upload_url } = generateResponse.data
 
             // Step 2: Upload image directly to S3
             await axios.put(upload_url, selectedFile, {
@@ -114,12 +91,7 @@ export default function StudentFaceRegistrationPage() {
 
             // Step 3: Confirm upload with backend
             await api.post('/student/face-registration/confirm-upload', {
-                uploads: [ // Backend expects an array of uploads
-                    {
-                        student_code: studentCode,
-                        file_name: fileName,
-                    }
-                ]
+                file_name: fileName,
             })
 
             setMessage('Tải lên ảnh đại diện thành công!')
