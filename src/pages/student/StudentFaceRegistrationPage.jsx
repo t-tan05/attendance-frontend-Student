@@ -65,9 +65,9 @@ export default function StudentFaceRegistrationPage() {
                 }
                 
                 // More strict validation: filename should be exactly DH + student code or DH + student code + suffix
-                const expectedPattern = new RegExp(`^DH${normalizedStudentCode}`, 'i')
+                const expectedPattern = new RegExp(`^${normalizedStudentCode}`, 'i')
                 if (!expectedPattern.test(fileNameWithoutExt)) {
-                    setError(`Tên file phải có định dạng: DH${studentCode} hoặc DH${studentCode}_suffix`)
+                    setError(`Tên file phải có định dạng: ${studentCode} hoặc ${studentCode}`)
                     return
                 }
             }
@@ -235,7 +235,7 @@ export default function StudentFaceRegistrationPage() {
                             style={{ display: 'none' }}
                         />
                         <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
-                            💡 Ví dụ: <strong>DH{user?.student_code || '52200529'}.png</strong> hoặc <strong>DH{user?.student_code || '52200529'}.jpg</strong>
+                            💡 Ví dụ: <strong>{user?.student_code}.png</strong> hoặc <strong>{user?.student_code}.jpg</strong>
                         </p>
                         {selectedFile && (
                             <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
@@ -345,9 +345,9 @@ export default function StudentFaceRegistrationPage() {
                         Tên file <strong>bắt buộc</strong> phải có định dạng:
                     </p>
                     <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem', color: '#1e40af' }}>
-                        <li><strong>DH{user?.student_code || '52200529'}.jpg</strong> (ví dụ: DH52200529.jpg)</li>
-                        <li><strong>DH{user?.student_code || '52200529'}.png</strong> (ví dụ: DH52200529_face.png)</li>
-                        <li><strong>dh{user?.student_code || '52200529'}.jpg</strong> (chữ thường cũng được)</li>
+                        <li><strong>{user?.student_code}.jpg</strong> (ví dụ: DH52200529.jpg)</li>
+                        <li><strong>{user?.student_code}.png</strong> (ví dụ: DH52200529.png)</li>
+                        <li><strong>{(user?.student_code)}.jpg</strong> (chữ thường cũng được)</li>
                     </ul>
                     <p style={{ margin: '0.5rem 0 0 0', color: '#dc2626', fontWeight: '600' }}>
                         ⚠️ File không đúng quy tắc đặt tên sẽ bị từ chối!
