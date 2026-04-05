@@ -44,10 +44,7 @@ export default function LoginPage() {
             <div className="login-card">
                 <p className="portal-kicker">Attendance Portal</p>
                 <h1>Đăng nhập hệ thống</h1>
-                <p>
-                    Sử dụng tài khoản backend để truy cập giao diện theo vai trò sinh viên hoặc giảng viên.
-                </p>
-
+                
                 <form onSubmit={handleSubmit} className="login-form">
                     <label htmlFor="email">Email</label>
                     <input
