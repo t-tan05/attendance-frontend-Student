@@ -1,82 +1,81 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../api/client';
+import { useState } from 'react'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 
-const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+export default function LoginPage() {
+    const { login, user } = useAuth()
+    const navigate = useNavigate()
+    const location = useLocation()
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [error, setError] = useState('')
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setError('');
+    if (user?.role === 'lecturer') {
+        return <Navigate to="/lecturer/exam-schedules" replace />
+    }
+
+    if (user?.role === 'student') {
+        return <Navigate to="/student/exam-schedules" replace />
+    }
+
+    const handleSubmit = async (event) => {
+        event.preventDefault()
+        setError('')
+        setIsSubmitting(true)
+
         try {
-            const response = await api.post('/auth/login', {
-                email,
-                password,
-                device_name: 'web_browser',
-            });
-            localStorage.setItem('access_token', response.data.access_token);
-
-            // Fetch user role and redirect
-            const userResponse = await api.get('/auth/me');
-            const userRole = userResponse.data.role;
-
-            if (userRole === 'student') {
-                navigate('/student/exam-schedules');
-            } else if (userRole === 'lecturer') {
-                navigate('/lecturer/exam-schedules');
-            } else {
-                navigate('/'); // Default redirect
-            }
-
+            const loggedInUser = await login({ email, password })
+            const fallbackPath =
+                loggedInUser?.role === 'lecturer'
+                    ? '/lecturer/exam-schedules'
+                    : '/student/exam-schedules'
+            const nextPath = location.state?.from?.pathname || fallbackPath
+            navigate(nextPath, { replace: true })
         } catch (err) {
-            console.error('Login error:', err);
-            setError('Login failed. Please check your credentials.');
+            setError(err?.response?.data?.message || err.message || 'Đăng nhập thất bại')
+        } finally {
+            setIsSubmitting(false)
         }
-    };
+    }
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f2f5' }}>
-            <div style={{ padding: '40px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', maxWidth: '400px', width: '100%' }}>
-                <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#333' }}>Login</h2>
-                <form onSubmit={handleLogin}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <label htmlFor="email" style={{ display: 'block', marginBottom: '8px', color: '#555' }}>Email:</label>
-                        <input
-                            type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }}
-                        />
-                    </div>
-                    <div style={{ marginBottom: '20px' }}>
-                        <label htmlFor="password" style={{ display: 'block', marginBottom: '8px', color: '#555' }}>Password:</label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }}
-                        />
-                    </div>
-                    {error && <p style={{ color: 'red', marginBottom: '15px', textAlign: 'center' }}>{error}</p>}
-                    <button
-                        type="submit"
-                        style={{ width: '100%', padding: '12px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', fontSize: '16px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#007bff'}
-                    >
-                        Login
+        <div className="login-page">
+            <div className="login-card">
+                <p className="portal-kicker">Attendance Portal</p>
+                <h1>Đăng nhập hệ thống</h1>
+                <p>
+                    Sử dụng tài khoản backend để truy cập giao diện theo vai trò sinh viên hoặc giảng viên.
+                </p>
+
+                <form onSubmit={handleSubmit} className="login-form">
+                    <label htmlFor="email">Email</label>
+                    <input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        autoComplete="username"
+                    />
+
+                    <label htmlFor="password">Mật khẩu</label>
+                    <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                    />
+
+                    {error ? <p className="error-note">{error}</p> : null}
+
+                    <button type="submit" style={{backgroundColor: "black"}} disabled={isSubmitting}>
+                        {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
                     </button>
                 </form>
             </div>
         </div>
-    );
-};
-
-export default LoginPage;
+    )
+}
