@@ -1,13 +1,38 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import EndpointTable from '../../components/EndpointTable'
 
 export default function StudentExamSchedulesPage() {
     const [searchQuery, setSearchQuery] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+
+    // Listen to URL changes
+    useEffect(() => {
+        const handleLocationChange = () => {
+            const params = new URLSearchParams(window.location.search)
+            const page = parseInt(params.get('page')) || 1
+            setCurrentPage(page)
+        }
+
+        // Set initial page
+        handleLocationChange()
+
+        // Listen for popstate (back/forward buttons)
+        window.addEventListener('popstate', handleLocationChange)
+        
+        return () => {
+            window.removeEventListener('popstate', handleLocationChange)
+        }
+    }, [])
     
-    // Memoize query object to prevent unnecessary re-renders
+    // Memoize query object to prevent unnecessary re-renders and include pagination
     const query = useMemo(() => {
-        return searchQuery ? { q: searchQuery } : {}
-    }, [searchQuery])
+        const queryParams = { limit: 10 }
+        if (searchQuery) {
+            queryParams.q = searchQuery
+        }
+        queryParams.page = currentPage
+        return queryParams
+    }, [searchQuery, currentPage])
 
     return (
         <div className="stacked-grid">

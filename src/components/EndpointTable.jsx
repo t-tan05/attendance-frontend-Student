@@ -98,8 +98,22 @@ export default function EndpointTable({
     columns,
     emptyText = 'Không có dữ liệu.',
 }) {
-    const { data, loading, error, reload } = useApiResource(endpoint, query)
+    const { data, loading, error, reload, pagination } = useApiResource(endpoint, query)
     const rows = toRows(data)
+
+    // Pagination handlers
+    const goToPage = (page) => {
+        if (!pagination || page < 1 || page > pagination.last_page) return
+        
+        // Update URL with new page
+        const params = new URLSearchParams(window.location.search)
+        params.set('page', page)
+        const newUrl = `${window.location.pathname}?${params.toString()}`
+        window.history.pushState({ page }, '', newUrl)
+        
+        // Dispatch popstate event to trigger parent component update
+        window.dispatchEvent(new PopStateEvent('popstate', { state: { page } }))
+    }
 
     return (
         <section className="resource-panel">
@@ -154,6 +168,67 @@ export default function EndpointTable({
                             </article>
                         ))}
                     </div>
+
+                    {/* Pagination Controls */}
+                    {pagination && pagination.last_page > 1 && (
+                        <div style={{
+                            marginTop: '1.5rem',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            flexWrap: 'wrap'
+                        }}>
+                            {/* Previous Button */}
+                            <button
+                                onClick={() => goToPage(pagination.current_page - 1)}
+                                disabled={pagination.current_page === 1}
+                                style={{
+                                    padding: '0.5rem 1rem',
+                                    backgroundColor: pagination.current_page === 1 ? '#e5e7eb' : '#3b82f6',
+                                    color: pagination.current_page === 1 ? '#9ca3af' : 'white',
+                                    border: 'none',
+                                    borderRadius: '0.375rem',
+                                    cursor: pagination.current_page === 1 ? 'not-allowed' : 'pointer',
+                                    fontWeight: '600',
+                                    fontSize: '0.875rem'
+                                }}
+                            >
+                                ← Trước
+                            </button>
+
+                            {/* Page Info */}
+                            <span style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: '#f3f4f6',
+                                borderRadius: '0.375rem',
+                                fontSize: '0.875rem',
+                                color: '#374151',
+                                fontWeight: '500'
+                            }}>
+                                Trang {pagination.current_page} / {pagination.last_page}
+                                {' '}(Tổng: {pagination.total} items)
+                            </span>
+
+                            {/* Next Button */}
+                            <button
+                                onClick={() => goToPage(pagination.current_page + 1)}
+                                disabled={pagination.current_page === pagination.last_page}
+                                style={{
+                                    padding: '0.5rem 1rem',
+                                    backgroundColor: pagination.current_page === pagination.last_page ? '#e5e7eb' : '#3b82f6',
+                                    color: pagination.current_page === pagination.last_page ? '#9ca3af' : 'white',
+                                    border: 'none',
+                                    borderRadius: '0.375rem',
+                                    cursor: pagination.current_page === pagination.last_page ? 'not-allowed' : 'pointer',
+                                    fontWeight: '600',
+                                    fontSize: '0.875rem'
+                                }}
+                            >
+                                Sau →
+                            </button>
+                        </div>
+                    )}
                 </>
             ) : null}
         </section>
