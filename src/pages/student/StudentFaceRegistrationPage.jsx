@@ -94,11 +94,16 @@ export default function StudentFaceRegistrationPage() {
             const fileType = selectedFile.type
 
             const generateResponse = await api.post('/student/face-registration/generate-upload-url', {
-                file_name: fileName,
-                file_type: fileType,
+                files: [ // Backend expects an array of files
+                    {
+                        file_name: fileName,
+                        file_type: fileType,
+                    }
+                ]
             })
 
-            const { upload_url } = generateResponse.data
+            const { data: uploadData } = generateResponse.data // Response data contains an array of upload info
+            const { upload_url } = uploadData[0] // Get the upload_url for the first (and only) file
 
             // Step 2: Upload image directly to S3
             await axios.put(upload_url, selectedFile, {
@@ -109,7 +114,12 @@ export default function StudentFaceRegistrationPage() {
 
             // Step 3: Confirm upload with backend
             await api.post('/student/face-registration/confirm-upload', {
-                file_name: fileName,
+                uploads: [ // Backend expects an array of uploads
+                    {
+                        student_code: studentCode,
+                        file_name: fileName,
+                    }
+                ]
             })
 
             setMessage('Tải lên ảnh đại diện thành công!')
