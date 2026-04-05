@@ -45,6 +45,24 @@ export default function StudentFaceRegistrationPage() {
                 return
             }
 
+            const studentCode = user?.student_code || user?.code
+            if (!studentCode) {
+                setError('Không tìm thấy mã sinh viên. Vui lòng đăng nhập lại.')
+                return
+            }
+
+            const fileNameLower = file.name.toLowerCase()
+            const studentCodeLower = studentCode.toLowerCase()
+
+            if (!fileNameLower.startsWith('dh') && !fileNameLower.startsWith('dh')) {
+                setError('Tên file phải bắt đầu bằng "DH" hoặc "dh".')
+                return
+            }
+            if (!fileNameLower.includes(studentCodeLower)) {
+                setError('Tên file phải chứa mã sinh viên của bạn.')
+                return
+            }
+
             setSelectedFile(file)
             setPreviewUrl(URL.createObjectURL(file))
             setMessage('')
@@ -72,7 +90,8 @@ export default function StudentFaceRegistrationPage() {
 
         try {
             // Step 1: Generate upload URL
-            const fileName = `${studentCode}.${selectedFile.name.split('.').pop()}`
+            // Construct file name to include the desired S3 folder prefix
+            const fileName = `images_to_register/${studentCode}.${selectedFile.name.split('.').pop()}`
             const fileType = selectedFile.type
 
             const generateResponse = await api.post('/student/face-registration/generate-upload-url', {
