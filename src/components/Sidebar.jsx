@@ -63,16 +63,17 @@ const Sidebar = ({ onCollapseChange }) => {
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 title={isCollapsed ? 'Mở sidebar' : 'Đóng sidebar'}
                 style={{
-                    width: '100%',
-                    marginBottom: '20px',
-                    padding: '10px',
+                    position: 'absolute', // Đặt vị trí tuyệt đối trong sidebar
+                    top: '10px', // Cách lề trên 10px
+                    right: '10px', // Cách lề phải 10px
+                    width: '42px', // Chiều rộng nhỏ hơn
+                    height: '36px', // Chiều cao nhỏ hơn để tạo hình tròn
+                    borderRadius: '50%', // Làm cho nút có hình tròn
                     backgroundColor: '#3b82f6',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '8px',
                     cursor: 'pointer',
-                    fontSize: '1.5rem',
-                    fontWeight: 'bold',
+                    fontSize: '12px', // Kích thước icon nhỏ hơn
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -84,7 +85,7 @@ const Sidebar = ({ onCollapseChange }) => {
 
             {!isCollapsed && (
                 <>
-                    <div style={{ marginBottom: '30px', textAlign: 'center', paddingTop: '20px' }}>
+                    <div style={{ marginBottom: '30px', textAlign: 'center', paddingTop: '60px' }}> {/* Điều chỉnh paddingTop để tránh chồng lấn với nút */}
                         <img src="/logo/STU_logo.webp" alt="STU Logo" style={{ maxWidth: '100px', height: 'auto' }} />
                         <h2 style={{ marginTop: '15px', fontSize: '1.3em', color: '#1f2937', fontWeight: '600' }}>Hệ thống điểm danh</h2>
                     </div>

@@ -90,8 +90,7 @@ export default function StudentFaceRegistrationPage() {
 
         try {
             // Step 1: Generate upload URL
-            // Construct file name to include the desired S3 folder prefix
-            const fileName = `images_to_register/${studentCode}.${selectedFile.name.split('.').pop()}`
+            const fileName = `${studentCode}.${selectedFile.name.split('.').pop()}`
             const fileType = selectedFile.type
 
             const generateResponse = await api.post('/student/face-registration/generate-upload-url', {
