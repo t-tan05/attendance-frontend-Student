@@ -9,14 +9,14 @@ import LecturerTodayExamsPage from './pages/lecturer/LecturerTodayExamsPage';
 import LecturerCurrentExamPage from './pages/lecturer/LecturerCurrentExamPage';
 import UserProfilePage from './pages/UserProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './Layout';
+import PortalLayout from './layouts/PortalLayout';
 
 function App() {
   return ( 
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       
-      <Route path="/" element={<Layout />}>
+      <Route path="/" element={<PortalLayout />}>
         <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
         {/* Student Routes */}
