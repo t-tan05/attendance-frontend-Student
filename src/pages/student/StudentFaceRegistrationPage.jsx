@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import api from '../../api/client'
+import { studentService } from '../../services'
 import { useAuth } from '../../auth/AuthContext'
 
 export default function StudentFaceRegistrationPage() {
@@ -21,8 +21,8 @@ export default function StudentFaceRegistrationPage() {
     const fetchWindowInfo = async () => {
         try {
             setLoadingWindow(true)
-            const response = await api.get('/student/face-registration/window')
-            setWindowInfo(response.data)
+            const data = await studentService.getFaceRegistrationWindow()
+            setWindowInfo(data)
         } catch (err) {
             console.error('Failed to fetch window info:', err)
         } finally {
@@ -102,12 +102,12 @@ export default function StudentFaceRegistrationPage() {
             const fileName = `${studentCode}.${selectedFile.name.split('.').pop()}`
             const fileType = selectedFile.type
 
-            const generateResponse = await api.post('/student/face-registration/generate-upload-url', {
+            const generateResponse = await studentService.generateUploadUrl({
                 file_name: fileName,
                 file_type: fileType,
             })
 
-            const { upload_url } = generateResponse.data
+            const { upload_url } = generateResponse
 
             // Step 2: Upload image directly to S3
             await axios.put(upload_url, selectedFile, {
@@ -117,7 +117,7 @@ export default function StudentFaceRegistrationPage() {
             })
 
             // Step 3: Confirm upload with backend
-            await api.post('/student/face-registration/confirm-upload', {
+            await studentService.confirmUpload({
                 file_name: fileName,
             })
 

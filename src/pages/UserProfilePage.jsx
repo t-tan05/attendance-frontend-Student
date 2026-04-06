@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import api from '../api/client';
+import { authService } from '../services';
 
 export default function UserProfilePage() {
     const { user } = useAuth();
@@ -38,18 +38,17 @@ export default function UserProfilePage() {
             return;
         }
 
-        if (newPassword.length < 8) { // Example minimum length
+        if (newPassword.length < 8) {
             setError('Mật khẩu mới phải có ít nhất 8 ký tự.');
             return;
         }
 
         setLoading(true);
         try {
-            // Assuming a POST /auth/change-password endpoint
-            await api.patch('/auth/change-password', {
+            await authService.changePassword({
                 current_password: currentPassword,
-                password: newPassword,
-                password_confirmation: confirmNewPassword,
+                new_password: newPassword,
+                new_password_confirmation: confirmNewPassword,
             });
             setMessage('Đổi mật khẩu thành công!');
             setCurrentPassword('');

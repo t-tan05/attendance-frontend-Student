@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import api from '../api/client'
+import { authService } from '../services'
 
 const AuthContext = createContext(null)
 
@@ -46,8 +46,8 @@ export function AuthProvider({ children }) {
         }
 
         try {
-            const response = await api.get('/auth/me')
-            const me = extractUser(response.data)
+            const data = await authService.getMe()
+            const me = extractUser(data)
             const normalized = { ...me, role: normalizeRole(me) }
             setUser(normalized)
             return normalized
@@ -88,13 +88,13 @@ export function AuthProvider({ children }) {
     }, [fetchMe, token])
 
     const login = useCallback(async ({ email, password, device_name }) => {
-        const response = await api.post('/auth/login', {
+        const data = await authService.login({
             email,
             password,
             device_name: device_name || 'attendance-react-portal',
         })
 
-        const nextToken = response.data?.access_token || response.data?.data?.access_token
+        const nextToken = data?.access_token || data?.data?.access_token
         if (!nextToken) {
             throw new Error('Khong nhan duoc access_token tu server.')
         }
@@ -102,7 +102,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem('access_token', nextToken)
         setToken(nextToken)
 
-        const loginUser = extractUser(response.data)
+        const loginUser = extractUser(data)
 
         if (!loginUser) {
             throw new Error('Khong nhan duoc thong tin user tu server.')
@@ -116,7 +116,7 @@ export function AuthProvider({ children }) {
 
     const logout = useCallback(async () => {
         try {
-            await api.post('/auth/logout')
+            await authService.logout()
         } catch {
             // Ignore backend logout failures and clear local session anyway.
         } finally {
