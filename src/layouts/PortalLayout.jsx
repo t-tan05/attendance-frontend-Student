@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 
 const navMap = {
@@ -28,6 +28,28 @@ export default function PortalLayout() {
     const { user, logout } = useAuth()
     const items = navMap[user?.role] || []
     const [collapsed, setCollapsed] = useState(false)
+    const [showDropdown, setShowDropdown] = useState(false)
+    const dropdownRef = useRef(null)
+    const navigate = useNavigate()
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [])
+
+    const handleProfileClick = () => {
+        setShowDropdown(false)
+        navigate('/profile')
+    }
 
     return (
         <div className="sidebar-shell">
@@ -79,19 +101,42 @@ export default function PortalLayout() {
                         )}
                     </button>
                     <div className="sidebar-topbar-right">
-                        <div className="sidebar-user">
-                            <div className="sidebar-avatar">
+                        <div className="sidebar-user" ref={dropdownRef} style={{ position: 'relative' }}>
+                            <div 
+                                className="sidebar-avatar" 
+                                onClick={() => setShowDropdown(!showDropdown)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="1.8">
                                     <circle cx="12" cy="8" r="4"/>
                                     <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
                                 </svg>
                             </div>
-                            <div>
+                            <div 
+                                onClick={() => setShowDropdown(!showDropdown)}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>
                                     {user?.name || user?.full_name || user?.email || 'Unknown'}
                                 </div>
                                 <div style={{ fontSize: 12, color: '#64748b' }}>{user?.role}</div>
                             </div>
+
+                            {/* Dropdown Menu */}
+                            {showDropdown && (
+                                <div className="user-dropdown">
+                                    <button
+                                        onClick={handleProfileClick}
+                                        className="user-dropdown-item"
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <circle cx="12" cy="8" r="4"/>
+                                            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                                        </svg>
+                                        <span>Thông tin cá nhân</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <button
                             type="button"

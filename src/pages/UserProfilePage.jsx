@@ -46,10 +46,10 @@ export default function UserProfilePage() {
         setLoading(true);
         try {
             // Assuming a POST /auth/change-password endpoint
-            await api.post('/auth/change-password', {
+            await api.patch('/auth/change-password', {
                 current_password: currentPassword,
-                new_password: newPassword,
-                new_password_confirmation: confirmNewPassword,
+                password: newPassword,
+                password_confirmation: confirmNewPassword,
             });
             setMessage('Đổi mật khẩu thành công!');
             setCurrentPassword('');
